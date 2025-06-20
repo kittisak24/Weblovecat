@@ -62,7 +62,7 @@ export default function Services() {
               <p className="text-gray-600 mb-6 leading-relaxed">{service.description}</p>
 
               <Link
-                href="#"
+                href="/services"
                 className="inline-flex items-center text-coral-500 hover:text-coral-600 font-medium group-hover:translate-x-1 transition-transform"
               >
                 เรียนรู้เพิ่มเติม

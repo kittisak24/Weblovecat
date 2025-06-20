@@ -4,16 +4,18 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu, X, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import BookingModal from "@/components/booking-modal"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
 
   const navigation = [
-    { name: "หน้าแรก", href: "#" },
-    { name: "บริการ", href: "#services" },
-    { name: "สินค้า", href: "#products" },
-    { name: "บทความ", href: "#blog" },
-    { name: "ติดต่อเรา", href: "#contact" },
+    { name: "หน้าแรก", href: "/" },
+    { name: "บริการ", href: "/services" },
+    { name: "สินค้า", href: "/products" },
+    { name: "บทความ", href: "/blog" },
+    { name: "ติดต่อเรา", href: "/contact" },
   ]
 
   return (
@@ -41,7 +43,9 @@ export default function Header() {
 
           {/* CTA Button */}
           <div className="hidden md:flex">
-            <Button className="bg-coral-500 hover:bg-coral-600 text-white">จองบริการ</Button>
+            <Button className="bg-coral-500 hover:bg-coral-600 text-white" onClick={() => setIsBookingModalOpen(true)}>
+              จองบริการ
+            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -67,12 +71,21 @@ export default function Header() {
                 </Link>
               ))}
               <div className="px-3 py-2">
-                <Button className="w-full bg-coral-500 hover:bg-coral-600 text-white">จองบริการ</Button>
+                <Button
+                  className="w-full bg-coral-500 hover:bg-coral-600 text-white"
+                  onClick={() => {
+                    setIsBookingModalOpen(true)
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  จองบริการ
+                </Button>
               </div>
             </div>
           </div>
         )}
       </div>
+      <BookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
     </header>
   )
 }

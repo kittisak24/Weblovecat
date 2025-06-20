@@ -1,8 +1,15 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Star, Users, Award, Heart } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
+import BookingModal from "../components/booking-modal"
 
 export default function Hero() {
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
+
   return (
     <section className="relative bg-gradient-to-br from-coral-50 to-teal-50 py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,16 +29,22 @@ export default function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-coral-500 hover:bg-coral-600 text-white px-8 py-4 text-lg">
-                จองบริการวันนี้
-              </Button>
               <Button
                 size="lg"
-                variant="outline"
-                className="border-teal-500 text-teal-600 hover:bg-teal-50 px-8 py-4 text-lg"
+                className="bg-coral-500 hover:bg-coral-600 text-white px-8 py-4 text-lg"
+                onClick={() => setIsBookingModalOpen(true)}
               >
-                ดูสินค้าทั้งหมด
+                จองบริการ
               </Button>
+              <Link href="/products">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-teal-500 text-teal-600 hover:bg-teal-50 px-8 py-4 text-lg"
+                >
+                  ดูสินค้าทั้งหมด
+                </Button>
+              </Link>
             </div>
 
             {/* Trust Indicators */}
@@ -75,6 +88,7 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      <BookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
     </section>
   )
 }

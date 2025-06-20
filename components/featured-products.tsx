@@ -121,7 +121,7 @@ export default function FeaturedProducts() {
 
         {/* View All Products Link */}
         <div className="text-center">
-          <Link href="#">
+          <Link href="/products">
             <Button variant="outline" size="lg" className="border-coral-500 text-coral-600 hover:bg-coral-50">
               ดูสินค้าทั้งหมด
             </Button>

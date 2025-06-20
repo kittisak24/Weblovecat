@@ -10,11 +10,11 @@ const footerLinks = {
     { name: "บริการรับฝาก", href: "#" },
   ],
   company: [
-    { name: "เกี่ยวกับเรา", href: "#" },
+    { name: "เกี่ยวกับเรา", href: "/contact" },
     { name: "ทีมงาน", href: "#" },
     { name: "ข่าวสาร", href: "#" },
     { name: "ร่วมงานกับเรา", href: "#" },
-    { name: "ติดต่อเรา", href: "#" },
+    { name: "ติดต่อเรา", href: "/contact" },
   ],
   support: [
     { name: "ศูนย์ช่วยเหลือ", href: "#" },
