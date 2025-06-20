@@ -6,12 +6,12 @@ import Link from "next/link"
 const products = [
   {
     id: 1,
-    name: "อาหารสุนัขพรีเมี่ยม",
+    name: "อาหารแมวพรีเมี่ยม",
     price: "฿1,299",
     originalPrice: "฿1,499",
     rating: 4.8,
     reviews: 124,
-    image: "/placeholder.svg?height=300&width=300",
+    image: "/a210900059744-3.webp?height=300&width=300",
     badge: "ขายดี",
   },
   {
@@ -20,17 +20,17 @@ const products = [
     price: "฿599",
     rating: 4.9,
     reviews: 89,
-    image: "/placeholder.svg?height=300&width=300",
+    image: "/Wholesale-New.webp?height=300&width=300",
     badge: "ใหม่",
   },
   {
     id: 3,
-    name: "บ้านสุนัขกันน้ำ",
+    name: "บ้านแมวกันน้ำ",
     price: "฿2,499",
     originalPrice: "฿2,999",
     rating: 4.7,
     reviews: 67,
-    image: "/placeholder.svg?height=300&width=300",
+    image: "/sg-11134201.jpeg?height=300&width=300",
     badge: "ลดราคา",
   },
   {
@@ -39,7 +39,7 @@ const products = [
     price: "฿299",
     rating: 4.6,
     reviews: 156,
-    image: "/placeholder.svg?height=300&width=300",
+    image: "/x7e0c7.jpg?height=300&width=300",
   },
 ]
 

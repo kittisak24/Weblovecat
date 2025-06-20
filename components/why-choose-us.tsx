@@ -65,7 +65,7 @@ export default function WhyChooseUs() {
 
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=500&width=600"
+                src="/istockphoto001.jpg?height=500&width=600"
                 alt="Professional pet care team"
                 width={600}
                 height={500}
@@ -78,7 +78,7 @@ export default function WhyChooseUs() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative lg:order-first">
               <Image
-                src="/placeholder.svg?height=500&width=600"
+                src="/pngtree-a-siamese-cat.jpg?height=500&width=600"
                 alt="Happy pets in our care"
                 width={600}
                 height={500}

@@ -10,9 +10,9 @@ export default function Hero() {
           {/* Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl lg:text-4xl font-bold text-gray-900 leading-tight">
                 เราให้ความรักและ
-                <span className="text-coral-500"> ดูแลสัตว์เลี้ยง</span>
+                <span className="text-coral-500 lg:text-5xl "> ดูแลสัตว์เลี้ยง</span>
                 ของคุณเหมือนครอบครัว
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed">
@@ -61,7 +61,7 @@ export default function Hero() {
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <Image
-                src="/placeholder.svg?height=600&width=500"
+                src="/images.jpg?height=600&width=500"
                 alt="Happy pets with their owners"
                 width={500}
                 height={600}
