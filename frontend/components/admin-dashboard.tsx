@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
 
 // Mock data
 const dashboardStats = {
@@ -162,17 +163,19 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Heart className="h-8 w-8 text-coral-500 mr-2" />
-              <span className="text-xl font-bold text-gray-900">We Love Pet Admin</span>
+              <span className="text-xl font-bold text-gray-900">We Love cat Admin</span>
             </div>
             <div className="flex items-center gap-4">
               <Button variant="outline" size="sm">
                 <Settings className="h-4 w-4 mr-2" />
                 ตั้งค่า
               </Button>
-              <Button variant="outline" size="sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                ออกจากระบบ
-              </Button>
+              <Link href="/admin/login">
+                <Button variant="outline" size="sm">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  ออกจากระบบ
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -27,7 +27,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: "อีเมล",
-    details: "info@welovepet.com",
+    details: "info@welovecat.com",
     color: "text-purple-500 bg-purple-100",
   },
   {
@@ -169,7 +169,7 @@ export default function ContactPage() {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-white/90 p-4 rounded-lg text-center">
                     <MapPin className="h-8 w-8 text-coral-500 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-900">We Love Pet</p>
+                    <p className="text-sm font-medium text-gray-900">We Love Cet</p>
                     <p className="text-xs text-gray-600">123 ถนนรักสัตว์</p>
                   </div>
                 </div>

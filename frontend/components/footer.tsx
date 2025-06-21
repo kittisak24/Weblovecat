@@ -34,7 +34,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <div className="flex items-center mb-6">
               <Heart className="h-8 w-8 text-coral-500 mr-2" />
-              <span className="text-2xl font-bold">We Love Pet</span>
+              <span className="text-2xl font-bold">We Love Cet</span>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
               เราให้ความรักและดูแลสัตว์เลี้ยงของคุณเหมือนครอบครัว ด้วยบริการครบวงจรและทีมผู้เชี่ยวชาญที่มีประสบการณ์มากกว่า 10 ปี
@@ -48,7 +48,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-coral-500" />
-                <span className="text-gray-300">info@welovepet.com</span>
+                <span className="text-gray-300">info@welovecet.com</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-coral-500" />
