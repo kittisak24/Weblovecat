@@ -24,13 +24,14 @@ export default function AdminLogin() {
     setError("")
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("http://localhost:8000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       })
       const data = await res.json()
       if (res.ok && data.success) {
+        localStorage.setItem("admin_token", data.token)
         router.push("/admin")
       } else {
         setError(data.error || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")

@@ -1,0 +1,55 @@
+{
+  "name": "we-love-pet-backend",
+  "version": "1.0.0",
+  "description": "Backend API for We Love Pet website",
+  "main": "scripts/backend-server.js",
+  "scripts": {
+    "start": "node scripts/backend-server.js",
+    "dev": "nodemon scripts/backend-server.js",
+    "test": "node scripts/test-api.js",
+    "test:watch": "nodemon scripts/test-api.js",
+    "hash-password": "node scripts/password-hasher.js",
+    "setup-db": "node scripts/database-setup.js",
+    "install-deps": "npm install",
+    "postinstall": "echo '✅ Dependencies installed successfully!'"
+  },
+  "keywords": [
+    "pet",
+    "api",
+    "backend",
+    "express",
+    "jwt",
+    "authentication"
+  ],
+  "author": "We Love Pet Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.0",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^6.3.4"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/welovepet/backend-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/welovepet/backend-api/issues"
+  },
+  "homepage": "https://github.com/welovepet/backend-api#readme"
+}

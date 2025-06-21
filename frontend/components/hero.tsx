@@ -22,7 +22,7 @@ export default function Hero() {
                 <span className="text-coral-500 lg:text-5xl "> ดูแลสัตว์เลี้ยง</span>
                 ของคุณเหมือนครอบครัว
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
+              <p className="text-2l text-gray-600 leading-relaxed">
                 บริการดูแลสัตว์เลี้ยงครบวงจร ด้วยทีมผู้เชี่ยวชาญและความรักที่แท้จริง เพื่อให้เพื่อนขนปุยของคุณมีความสุขและสุขภาพดีเสมอ
               </p>
             </div>

@@ -6,7 +6,7 @@ const cors = require("cors")
 const rateLimit = require("express-rate-limit")
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 8000
 const JWT_SECRET = process.env.JWT_SECRET || "we-love-pet-super-secret-jwt-key-2024"
 const JWT_EXPIRES_IN = "24h"
 
@@ -21,7 +21,7 @@ app.use(
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true)
 
-      const allowedOrigins = ["http://localhost:3000", "http://localhost:3001", "https://your-frontend-domain.com"]
+      const allowedOrigins = ["http://localhost:8000", "http://localhost:8001", "http://localhost:3000"]
 
       if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true)
@@ -55,68 +55,44 @@ const loginLimiter = rateLimit({
 })
 
 // General rate limiting
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: {
-    error: "Too many requests, please try again later.",
-    retryAfter: 15 * 60,
-  },
-})
+// const generalLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // limit each IP to 100 requests per windowMs
+//   message: {
+//     error: "Too many requests, please try again later.",
+//     retryAfter: 15 * 60,
+//   },
+// })
 
-app.use(generalLimiter)
+// app.use(generalLimiter)
 
-// Mock Database (In production, use real database like MongoDB, PostgreSQL, etc.)
-const users = [
-  {
-    id: "1",
-    username: "admin",
-    email: "admin@welovepet.com",
-    password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password: admin123
-    role: "admin",
-    name: "ผู้ดูแลระบบ",
-    isActive: true,
-    createdAt: new Date("2024-01-01"),
-    lastLogin: null,
-    loginAttempts: 0,
-    lockUntil: null,
-  },
-  {
-    id: "2",
-    username: "manager",
-    email: "manager@welovepet.com",
-    password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password: manager123
-    role: "admin",
-    name: "ผู้จัดการ",
-    isActive: true,
-    createdAt: new Date("2024-01-01"),
-    lastLogin: null,
-    loginAttempts: 0,
-    lockUntil: null,
-  },
-  {
-    id: "3",
-    username: "staff",
-    email: "staff@welovepet.com",
-    password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password: staff123
-    role: "staff",
-    name: "พนักงาน",
-    isActive: true,
-    createdAt: new Date("2024-01-01"),
-    lastLogin: null,
-    loginAttempts: 0,
-    lockUntil: null,
-  },
-]
+// MongoDB Functions
+const {
+  initializeDatabase,
+  findUserByUsername,
+  findUserById,
+  updateUserLoginInfo,
+  isAccountLocked,
+  isTokenBlacklisted,
+  blacklistToken,
+  createUser,
+  findUserByEmail,
+  User,
+  BlacklistedToken,
+  seedUsers,
+  isUsingMongoDB
+} = require('./database/mongodb')
 
-// Blacklisted tokens (for logout functionality)
-const blacklistedTokens = new Set()
+// Initialize DB (MongoDB or fallback)
+initializeDatabase()
 
 // Helper Functions
 const generateToken = (user) => {
+  // mongoose _id or memory id
+  const id = user._id ? user._id.toString() : user.id
   return jwt.sign(
     {
-      userId: user.id,
+      userId: id,
       username: user.username,
       role: user.role,
       email: user.email,
@@ -126,9 +102,9 @@ const generateToken = (user) => {
   )
 }
 
-const verifyToken = (token) => {
+const verifyToken = async (token) => {
   try {
-    if (blacklistedTokens.has(token)) {
+    if (await isTokenBlacklisted(token)) {
       throw new Error("Token has been blacklisted")
     }
     return jwt.verify(token, JWT_SECRET)
@@ -137,36 +113,11 @@ const verifyToken = (token) => {
   }
 }
 
-const findUserByUsername = (username) => {
-  return users.find((user) => user.username === username)
-}
-
-const findUserById = (id) => {
-  return users.find((user) => user.id === id)
-}
-
-const updateUserLoginInfo = (userId, success = true) => {
-  const user = findUserById(userId)
-  if (user) {
-    if (success) {
-      user.lastLogin = new Date()
-      user.loginAttempts = 0
-      user.lockUntil = null
-    } else {
-      user.loginAttempts = (user.loginAttempts || 0) + 1
-      if (user.loginAttempts >= 5) {
-        user.lockUntil = new Date(Date.now() + 30 * 60 * 1000) // Lock for 30 minutes
-      }
-    }
-  }
-}
-
-const isAccountLocked = (user) => {
-  return user.lockUntil && user.lockUntil > new Date()
-}
+// Blacklisted tokens (for logout functionality)
+const blacklistedTokens = new Set()
 
 // Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"]
   const token = authHeader && authHeader.split(" ")[1] // Bearer TOKEN
 
@@ -178,7 +129,7 @@ const authenticateToken = (req, res, next) => {
   }
 
   try {
-    const decoded = verifyToken(token)
+    const decoded = await verifyToken(token)
     req.user = decoded
     next()
   } catch (error) {
@@ -246,7 +197,7 @@ app.get("/api", (req, res) => {
 })
 
 // Login
-app.post("/api/auth/login", loginLimiter, async (req, res) => {
+app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body
 
@@ -259,7 +210,7 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     }
 
     // Find user
-    const user = findUserByUsername(username)
+    const user = await findUserByUsername(username)
     if (!user) {
       return res.status(401).json({
         error: "Invalid username or password",
@@ -288,11 +239,11 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password)
     if (!isPasswordValid) {
-      updateUserLoginInfo(user.id, false)
+      await updateUserLoginInfo(user.id, false)
       return res.status(401).json({
         error: "Invalid username or password",
         code: "INVALID_CREDENTIALS",
-        attemptsRemaining: Math.max(0, 5 - (user.loginAttempts + 1)),
+        attemptsRemaining: Math.max(0, 5 - ((user.loginAttempts || 0) + 1)),
       })
     }
 
@@ -300,7 +251,7 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     const token = generateToken(user)
 
     // Update login info
-    updateUserLoginInfo(user.id, true)
+    await updateUserLoginInfo(user.id, true)
 
     // Return success response
     res.json({
@@ -328,20 +279,17 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
 })
 
 // Logout
-app.post("/api/auth/logout", authenticateToken, (req, res) => {
+app.post("/api/auth/logout", authenticateToken, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"]
     const token = authHeader && authHeader.split(" ")[1]
-
     if (token) {
-      blacklistedTokens.add(token)
+      await blacklistToken(token)
     }
-
     res.json({
       success: true,
       message: "Logout successful",
     })
-
     console.log(`✅ User ${req.user.username} logged out at ${new Date().toISOString()}`)
   } catch (error) {
     console.error("❌ Logout error:", error)
@@ -353,9 +301,9 @@ app.post("/api/auth/logout", authenticateToken, (req, res) => {
 })
 
 // Get current user info
-app.get("/api/auth/me", authenticateToken, (req, res) => {
+app.get("/api/auth/me", authenticateToken, async (req, res) => {
   try {
-    const user = findUserById(req.user.userId)
+    const user = await findUserById(req.user.userId)
 
     if (!user) {
       return res.status(404).json({
@@ -410,7 +358,7 @@ app.post("/api/auth/change-password", authenticateToken, async (req, res) => {
       })
     }
 
-    const user = findUserById(req.user.userId)
+    const user = await findUserById(req.user.userId)
     if (!user) {
       return res.status(404).json({
         error: "User not found",
@@ -432,7 +380,7 @@ app.post("/api/auth/change-password", authenticateToken, async (req, res) => {
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds)
 
     // Update password
-    user.password = hashedNewPassword
+    await updateUserPassword(user.id, hashedNewPassword)
 
     res.json({
       success: true,
@@ -452,9 +400,9 @@ app.post("/api/auth/change-password", authenticateToken, async (req, res) => {
 // Admin Routes
 
 // Get all users (Admin only)
-app.get("/api/admin/users", authenticateToken, requireAdmin, (req, res) => {
+app.get("/api/admin/users", authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const userList = users.map((user) => ({
+    const userList = (await getAllUsers()).map((user) => ({
       id: user.id,
       username: user.username,
       email: user.email,
@@ -494,7 +442,7 @@ app.post("/api/admin/users", authenticateToken, requireAdmin, async (req, res) =
     }
 
     // Check if username already exists
-    if (findUserByUsername(username)) {
+    if (await findUserByUsername(username)) {
       return res.status(409).json({
         error: "Username already exists",
         code: "USERNAME_EXISTS",
@@ -502,7 +450,7 @@ app.post("/api/admin/users", authenticateToken, requireAdmin, async (req, res) =
     }
 
     // Check if email already exists
-    if (users.find((user) => user.email === email)) {
+    if (await findUserByEmail(email)) {
       return res.status(409).json({
         error: "Email already exists",
         code: "EMAIL_EXISTS",
@@ -515,7 +463,7 @@ app.post("/api/admin/users", authenticateToken, requireAdmin, async (req, res) =
 
     // Create new user
     const newUser = {
-      id: (users.length + 1).toString(),
+      id: Date.now().toString(),
       username,
       email,
       password: hashedPassword,
@@ -528,7 +476,7 @@ app.post("/api/admin/users", authenticateToken, requireAdmin, async (req, res) =
       lockUntil: null,
     }
 
-    users.push(newUser)
+    await createUser(newUser)
 
     res.status(201).json({
       success: true,
@@ -555,22 +503,22 @@ app.post("/api/admin/users", authenticateToken, requireAdmin, async (req, res) =
 })
 
 // Get system stats (Admin only)
-app.get("/api/admin/stats", authenticateToken, requireAdmin, (req, res) => {
+app.get("/api/admin/stats", authenticateToken, requireAdmin, async (req, res) => {
   try {
     const now = new Date()
     const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000)
     const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-
+    const allUsers = await getAllUsers()
     const stats = {
-      totalUsers: users.length,
-      activeUsers: users.filter((user) => user.isActive).length,
-      lockedUsers: users.filter((user) => isAccountLocked(user)).length,
-      recentLogins: users.filter((user) => user.lastLogin && user.lastLogin > last24Hours).length,
-      weeklyLogins: users.filter((user) => user.lastLogin && user.lastLogin > last7Days).length,
+      totalUsers: allUsers.length,
+      activeUsers: allUsers.filter((user) => user.isActive).length,
+      lockedUsers: allUsers.filter((user) => isAccountLocked(user)).length,
+      recentLogins: allUsers.filter((user) => user.lastLogin && user.lastLogin > last24Hours).length,
+      weeklyLogins: allUsers.filter((user) => user.lastLogin && user.lastLogin > last7Days).length,
       usersByRole: {
-        admin: users.filter((user) => user.role === "admin").length,
-        staff: users.filter((user) => user.role === "staff").length,
-        user: users.filter((user) => user.role === "user").length,
+        admin: allUsers.filter((user) => user.role === "admin").length,
+        staff: allUsers.filter((user) => user.role === "staff").length,
+        user: allUsers.filter((user) => user.role === "user").length,
       },
       systemInfo: {
         uptime: process.uptime(),
@@ -626,7 +574,7 @@ app.use("*", (req, res) => {
 
 // Start server
 const server = app.listen(PORT, () => {
-  console.log("🚀 We Love Pet Backend API Server")
+  console.log("🚀 We Love Cat Backend API Server")
   console.log("=".repeat(40))
   console.log(`📍 Server running on: http://localhost:${PORT}`)
   console.log(`🏥 Health check: http://localhost:${PORT}/api/health`)

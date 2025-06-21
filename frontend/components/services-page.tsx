@@ -110,7 +110,7 @@ export default function ServicesPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-gradient-to-br from-coral-500 text-black to-coral-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-3xl lg:text-3xl font-bold text-gray-900 mb-4">บริการทั้งหมด</h1>
             <p className="text-2l text-gray-600">
@@ -121,7 +121,7 @@ export default function ServicesPage() {
       </div>
 
       {/* Services Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service) => (
             <div

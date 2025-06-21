@@ -162,17 +162,17 @@ export default function BlogPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-gradient-to-br from-coral-500 text-black to-coral-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-3xl lg:text-3xl font-bold text-gray-900 mb-4">บทความและเคล็ดลับ</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-2l text-gray-600">
               ความรู้และเคล็ดลับในการดูแลสัตว์เลี้ยงจากผู้เชี่ยวชาญ เพื่อให้เพื่อนขนปุยของคุณมีสุขภาพดี
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Featured Article */}
         {featuredArticle && (
           <div className="mb-12">
