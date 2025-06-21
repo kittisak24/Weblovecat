@@ -50,7 +50,7 @@ export default function FeaturedProducts() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">สินค้าขายดี</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">สินค้าคุณภาพสูงที่ได้รับความนิยมจากเจ้าของสัตว์เลี้ยงทั่วประเทศ</p>
+          <p className="text-2l text-gray-600">สินค้าคุณภาพสูงที่ได้รับความนิยมจากเจ้าของสัตว์เลี้ยงทั่วประเทศ</p>
         </div>
 
         {/* Products Grid */}

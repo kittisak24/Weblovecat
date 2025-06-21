@@ -96,15 +96,15 @@ export default function ContactPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
        <div className="bg-gradient-to-br from-coral-500 text-black to-coral-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-3xl lg:text-3xl font-bold text-gray-900 mb-4">ติดต่อเรา</h1>
-            <p className="text-xl opacity-90  text-gray-600 max-w-3xl mx-auto ">พร้อมให้บริการและตอบคำถามทุกเรื่องเกี่ยวกับสัตว์เลี้ยงของคุณ</p>
+            <p className="text-2l text-gray-600">พร้อมให้บริการและตอบคำถามทุกเรื่องเกี่ยวกับสัตว์เลี้ยงของคุณ</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Contact Information */}
           <div className="lg:col-span-1 space-y-8">

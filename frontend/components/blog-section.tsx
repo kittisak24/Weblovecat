@@ -40,7 +40,7 @@ export default function BlogSection() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">บทความและเคล็ดลับ</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-2l text-gray-600">
             ความรู้และเคล็ดลับในการดูแลสัตว์เลี้ยงจากผู้เชี่ยวชาญ เพื่อให้เพื่อนขนปุยของคุณมีสุขภาพดี
           </p>
         </div>

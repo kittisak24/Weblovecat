@@ -41,7 +41,7 @@ export default function Services() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">บริการของเรา</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-2l text-gray-600">
             เราให้บริการดูแลสัตว์เลี้ยงแบบครบวงจร ด้วยทีมผู้เชี่ยวชาญที่มีประสบการณ์และความรักในสัตว์
           </p>
         </div>

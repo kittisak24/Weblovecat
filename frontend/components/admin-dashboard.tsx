@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   BarChart3,
   Users,
@@ -155,6 +155,13 @@ export default function AdminDashboard() {
     }
   }
 
+  // Logout handler
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("admin_token")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -171,7 +178,7 @@ export default function AdminDashboard() {
                 ตั้งค่า
               </Button>
               <Link href="/admin/login">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleLogout}>
                   <LogOut className="h-4 w-4 mr-2" />
                   ออกจากระบบ
                 </Button>

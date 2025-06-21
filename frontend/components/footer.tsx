@@ -28,7 +28,7 @@ const footerLinks = {
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand Section */}
           <div className="lg:col-span-2">
@@ -48,7 +48,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-coral-500" />
-                <span className="text-gray-300">info@welovecet.com</span>
+                <span className="text-gray-300">info@welovecat.com</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-coral-500" />
@@ -104,7 +104,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright */}
-            <p className="text-gray-400 text-sm">© {new Date().getFullYear()} We Love Pet. สงวนลิขสิทธิ์ทุกประการ</p>
+            <p className="text-gray-400 text-sm">© {new Date().getFullYear()}Copy Mockup BY.KITTISAK</p>
 
             {/* Social Media */}
             <div className="flex items-center gap-4">

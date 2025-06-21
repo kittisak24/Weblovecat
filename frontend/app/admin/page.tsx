@@ -10,7 +10,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("admin_token")
-    if (token !== "demo_token") {
+    if (!token) {
       router.replace("/admin/login")
     }
   }, [router])

@@ -54,7 +54,7 @@ export default function Testimonials() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">ลูกค้าพูดถึงเรา</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">ฟังเสียงจากลูกค้าที่ไว้วางใจให้เราดูแลสัตว์เลี้ยงที่รักของพวกเขา</p>
+          <p className="text-2l text-gray-600">ฟังเสียงจากลูกค้าที่ไว้วางใจให้เราดูแลสัตว์เลี้ยงที่รักของพวกเขา</p>
         </div>
 
         {/* Testimonial Carousel */}

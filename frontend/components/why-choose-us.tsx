@@ -41,7 +41,7 @@ export default function WhyChooseUs() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">ทำไมต้องเลือกเรา</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-2l text-gray-600">
             เราคือผู้นำด้านการดูแลสัตว์เลี้ยงที่ได้รับความไว้วางใจจากเจ้าของสัตว์เลี้ยงมากกว่า 5,000 ครอบครัว
           </p>
         </div>
