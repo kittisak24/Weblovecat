@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Star, Users, Award, Heart } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import BookingModal from "../components/booking-modal"
+import BookingModal from "./booking-modal"
 
 export default function Hero() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)

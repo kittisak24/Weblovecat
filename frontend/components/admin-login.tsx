@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -24,15 +23,21 @@ export default function AdminLogin() {
     setIsLoading(true)
     setError("")
 
-    // Simple demo authentication (replace with real auth)
-    if (credentials.username === "admin" && credentials.password === "password") {
-      // In real app, set proper authentication tokens
-      localStorage.setItem("admin_token", "demo_token")
-      router.push("/admin")
-    } else {
-      setError("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        router.push("/admin")
+      } else {
+        setError(data.error || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+      }
+    } catch (err) {
+      setError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์")
     }
-
     setIsLoading(false)
   }
 
@@ -42,7 +47,7 @@ export default function AdminLogin() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <Heart className="h-8 w-8 text-coral-500 mr-2" />
-            <span className="text-2xl font-bold text-gray-900">We Love Pet</span>
+            <span className="text-2xl font-bold text-gray-900">We Love Cat</span>
           </div>
           <CardTitle className="text-xl">เข้าสู่ระบบจัดการ</CardTitle>
         </CardHeader>
@@ -93,7 +98,7 @@ export default function AdminLogin() {
               ชื่อผู้ใช้: <code className="bg-gray-100 px-1 rounded">admin</code>
             </p>
             <p>
-              รหัสผ่าน: <code className="bg-gray-100 px-1 rounded">password</code>
+              รหัสผ่าน: <code className="bg-gray-100 px-1 rounded">admin123</code>
             </p>
           </div>
         </CardContent>
