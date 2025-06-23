@@ -1,7 +1,7 @@
 import AdminLogin from "@/components/admin-login"
 
 export const metadata = {
-  title: "Admin Login - We Love Cat",
+  title: "Admin Login - Web Love Cat",
   description: "เข้าสู่ระบบจัดการ",
 }
 
