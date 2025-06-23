@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +14,11 @@ import { Calendar, Clock, Heart, Phone, Mail, User, PawPrint } from "lucide-reac
 interface BookingModalProps {
   isOpen: boolean
   onClose: () => void
+  service?: {
+    id: number
+    name: string
+    // ...other fields as needed
+  } | null
 }
 
 const services = [
@@ -54,7 +59,7 @@ const timeSlots = [
   "17:30",
 ]
 
-export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
+export default function BookingModal({ isOpen, onClose, service }: BookingModalProps) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -62,7 +67,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     email: "",
     petName: "",
     petType: "",
-    service: "",
+    service: service?.name || "",
     date: "",
     time: "",
     notes: "",
@@ -109,6 +114,13 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     return tomorrow.toISOString().split("T")[0]
   }
 
+  // Autofill service name if prop changes
+  useEffect(() => {
+    if (service?.name) {
+      setFormData((prev) => ({ ...prev, service: service.name }))
+    }
+  }, [service])
+
   if (isSubmitted) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -139,7 +151,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <PawPrint className="h-6 w-6 text-coral-500" />
-            จองบริการดูแลสัตว์เลี้ยง
+            {service?.name ? `จองบริการ: ${service.name}` : "จองบริการดูแลสัตว์เลี้ยง"}
           </DialogTitle>
         </DialogHeader>
 
@@ -252,14 +264,14 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="service">บริการที่ต้องการ *</Label>
-                <Select value={formData.service} onValueChange={(value) => handleInputChange("service", value)}>
+                <Select value={formData.service} onValueChange={(value) => handleInputChange("service", value)} disabled={!!service?.name}>
                   <SelectTrigger>
                     <SelectValue placeholder="เลือกบริการ" />
                   </SelectTrigger>
                   <SelectContent>
-                    {services.map((service) => (
-                      <SelectItem key={service.value} value={service.value}>
-                        {service.label}
+                    {services.map((s) => (
+                      <SelectItem key={s.value} value={s.label}>
+                        {s.label}
                       </SelectItem>
                     ))}
                   </SelectContent>

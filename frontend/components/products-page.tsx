@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Search, Filter, Grid, List, Star, ShoppingCart, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,160 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import Link from "next/link"
-
-// Mock product data
-const allProducts = [
-  {
-    id: 1,
-    name: "อาหารสุนัขพรีเมี่ยม Royal Canin",
-    price: 1299,
-    originalPrice: 1499,
-    rating: 4.8,
-    reviews: 124,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "อาหารสุนัข",
-    brand: "Royal Canin",
-    inStock: true,
-    badge: "ขายดี",
-    description: "อาหารสุนัขคุณภาพสูง เหมาะสำหรับสุนัขโตทุกสายพันธุ์",
-  },
-  {
-    id: 2,
-    name: "ของเล่นแมวอินเตอร์แอคทีฟ",
-    price: 599,
-    rating: 4.9,
-    reviews: 89,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "ของเล่นแมว",
-    brand: "PetToy",
-    inStock: true,
-    badge: "ใหม่",
-    description: "ของเล่นอัจฉริยะที่ช่วยกระตุ้นสมองแมว",
-  },
-  {
-    id: 3,
-    name: "บ้านสุนัขกันน้ำ Premium",
-    price: 2499,
-    originalPrice: 2999,
-    rating: 4.7,
-    reviews: 67,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "บ้านสัตว์",
-    brand: "PetHouse",
-    inStock: true,
-    badge: "ลดราคา",
-    description: "บ้านสุนัขกันน้ำ ทนทาน เหมาะสำหรับใช้กลางแจ้ง",
-  },
-  {
-    id: 4,
-    name: "ปลอกคอแมวแฟชั่น",
-    price: 299,
-    rating: 4.6,
-    reviews: 156,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "อุปกรณ์แมว",
-    brand: "CatStyle",
-    inStock: true,
-    description: "ปลอกคอแมวสไตล์เก๋ ปรับขนาดได้",
-  },
-  {
-    id: 5,
-    name: "อาหารแมวเปียก Whiskas",
-    price: 45,
-    rating: 4.5,
-    reviews: 203,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "อาหารแมว",
-    brand: "Whiskas",
-    inStock: true,
-    description: "อาหารแมวเปียกรสปลาทูน่า อร่อยและมีประโยชน์",
-  },
-  {
-    id: 6,
-    name: "เสื้อผ้าสุนัขฤดูหนาว",
-    price: 450,
-    rating: 4.4,
-    reviews: 78,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "เสื้อผ้าสัตว์",
-    brand: "PetFashion",
-    inStock: false,
-    description: "เสื้อกันหนาวสำหรับสุนัข อบอุ่นและสวยงาม",
-  },
-  {
-    id: 7,
-    name: "ชามอาหารสแตนเลส",
-    price: 199,
-    rating: 4.7,
-    reviews: 145,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "อุปกรณ์ให้อาหาร",
-    brand: "PetBowl",
-    inStock: true,
-    description: "ชามอาหารสแตนเลสคุณภาพสูง ทำความสะอาดง่าย",
-  },
-  {
-    id: 8,
-    name: "ทรายแมวกลิ่นลาเวนเดอร์",
-    price: 159,
-    rating: 4.3,
-    reviews: 92,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "ทรายแมว",
-    brand: "CatLitter",
-    inStock: true,
-    description: "ทรายแมวหอมกลิ่นลาเวนเดอร์ ดูดซับดีเยี่ยม",
-  },
-  {
-    id: 9,
-    name: "เชือกจูงสุนัขแบบยืด",
-    price: 350,
-    rating: 4.6,
-    reviews: 134,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "อุปกรณ์สุนัข",
-    brand: "DogWalk",
-    inStock: true,
-    badge: "แนะนำ",
-    description: "เชือกจูงสุนัขแบบยืดหยุ่น ปลอดภัยและสะดวก",
-  },
-  {
-    id: 10,
-    name: "ขนมสุนัขเสริมแคลเซียม",
-    price: 129,
-    rating: 4.8,
-    reviews: 167,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "ขนมสัตว์",
-    brand: "HealthyTreat",
-    inStock: true,
-    description: "ขนมสุนัขเสริมแคลเซียม ช่วยเสริมสร้างกระดูกและฟัน",
-  },
-  {
-    id: 11,
-    name: "กรงนกแก้วขนาดใหญ่",
-    price: 1899,
-    rating: 4.5,
-    reviews: 43,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "กรงสัตว์",
-    brand: "BirdCage",
-    inStock: true,
-    description: "กรงนกแก้วขนาดใหญ่ แข็งแรงและปลอดภัย",
-  },
-  {
-    id: 12,
-    name: "แชมพูสุนัขผิวแพ้ง่าย",
-    price: 249,
-    rating: 4.7,
-    reviews: 98,
-    image: "/placeholder.svg?height=300&width=300",
-    category: "ผลิตภัณฑ์อาบน้ำ",
-    brand: "GentleCare",
-    inStock: true,
-    description: "แชมพูสำหรับสุนัขผิวแพ้ง่าย อ่อนโยนและปลอดภัย",
-  },
-]
 
 const categories = [
   "ทั้งหมด",
@@ -188,6 +34,9 @@ const sortOptions = [
 ]
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด")
   const [sortBy, setSortBy] = useState("popular")
@@ -196,12 +45,26 @@ export default function ProductsPage() {
   const [showFilters, setShowFilters] = useState(false)
   const itemsPerPage = 9
 
+  useEffect(() => {
+    setLoading(true)
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        setError("เกิดข้อผิดพลาดในการโหลดสินค้า")
+        setLoading(false)
+      })
+  }, [])
+
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = allProducts.filter((product) => {
+    const filtered = products.filter((product) => {
       const matchesSearch =
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesCategory = selectedCategory === "ทั้งหมด" || product.category === selectedCategory
       return matchesSearch && matchesCategory
     })
@@ -215,17 +78,17 @@ export default function ProductsPage() {
         filtered.sort((a, b) => b.price - a.price)
         break
       case "rating":
-        filtered.sort((a, b) => b.rating - a.rating)
+        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0))
         break
       case "newest":
-        filtered.sort((a, b) => b.id - a.id)
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         break
       default:
-        filtered.sort((a, b) => b.reviews - a.reviews)
+        filtered.sort((a, b) => (b.reviews || 0) - (a.reviews || 0))
     }
 
     return filtered
-  }, [searchTerm, selectedCategory, sortBy])
+  }, [products, searchTerm, selectedCategory, sortBy])
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage)
@@ -243,10 +106,10 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-       <div className="bg-gradient-to-br from-coral-500 text-black to-coral-300">
+      <div className="bg-gradient-to-br from-coral-500 text-black to-coral-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h1 className="text-3xl lg:text-3xl font-bold text-gray-900 mb-4">สินค้าหมด</h1>
+            <h1 className="text-3xl lg:text-3xl font-bold text-gray-900 mb-4">สินค้า</h1>
             <p className="text-2l text-gray-600">เลือกซื้อสินค้าคุณภาพสูงสำหรับสัตว์เลี้ยงที่คุณรัก</p>
           </div>
         </div>
@@ -354,91 +217,50 @@ export default function ProductsPage() {
               </div>
             </div>
 
-            {/* Products Grid/List */}
-            {paginatedProducts.length > 0 ? (
+            {/* Loading/Error */}
+            {loading ? (
+              <div className="text-center py-12 text-gray-500">กำลังโหลดสินค้า...</div>
+            ) : error ? (
+              <div className="text-center py-12 text-red-500">{error}</div>
+            ) : paginatedProducts.length > 0 ? (
               <div className={viewMode === "grid" ? "grid sm:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
                 {paginatedProducts.map((product) => (
                   <div
-                    key={product.id}
+                    key={product._id}
                     className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 ${
                       viewMode === "list" ? "flex gap-4 p-4" : "overflow-hidden"
                     }`}
                   >
                     {/* Product Image */}
-                    <div
-                      className={`relative ${viewMode === "list" ? "w-32 h-32 flex-shrink-0" : "w-full h-64"} overflow-hidden ${viewMode === "grid" ? "rounded-t-lg" : "rounded-lg"}`}
-                    >
-                      <Image
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        fill
-                        className="object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                      {product.badge && (
-                        <div className="absolute top-2 left-2">
-                          <Badge
-                            className={
-                              product.badge === "ขายดี"
-                                ? "bg-coral-500"
-                                : product.badge === "ใหม่"
-                                  ? "bg-green-500"
-                                  : product.badge === "ลดราคา"
-                                    ? "bg-orange-500"
-                                    : "bg-blue-500"
-                            }
-                          >
-                            {product.badge}
-                          </Badge>
-                        </div>
+                    <Image
+                      src={product.image || "/placeholder.svg?height=300&width=300"}
+                      alt={product.name}
+                      width={300}
+                      height={300}
+                      className="object-cover w-full h-48 rounded-t-lg"
+                    />
+                    <div className="p-4 flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-lg text-gray-900">{product.name}</span>
+                        {product.badge && <Badge>{product.badge}</Badge>}
+                      </div>
+                      <div className="text-coral-700 font-bold text-xl">{formatPrice(product.price)}</div>
+                      {product.originalPrice && (
+                        <div className="text-gray-400 line-through text-sm">{formatPrice(product.originalPrice)}</div>
                       )}
-                      {!product.inStock && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white font-medium">สินค้าหมด</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Product Info */}
-                    <div className={`${viewMode === "grid" ? "p-4" : "flex-1"}`}>
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 hover:text-coral-500 transition-colors line-clamp-2">
-                          <Link href={`/products/${product.id}`}>{product.name}</Link>
-                        </h3>
-                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-coral-500">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Star className="h-4 w-4 text-yellow-400" />
+                        {product.rating || 0} ({product.reviews || 0} รีวิว)
+                      </div>
+                      <div className="text-gray-500 text-sm">{product.description}</div>
+                      <div className="flex gap-2 mt-2">
+                        <Button size="sm" variant="outline">
+                          <ShoppingCart className="h-4 w-4 mr-1" /> หยิบใส่ตะกร้า
+                        </Button>
+                        <Button size="sm" variant="ghost">
                           <Heart className="h-4 w-4" />
                         </Button>
                       </div>
-
-                      <p className="text-sm text-gray-600 mb-2">{product.brand}</p>
-
-                      {viewMode === "list" && (
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
-                      )}
-
-                      {/* Rating */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
-                        </div>
-                        <span className="text-sm text-gray-400">({product.reviews})</span>
-                      </div>
-
-                      {/* Price */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="text-xl font-bold text-gray-900">{formatPrice(product.price)}</span>
-                        {product.originalPrice && (
-                          <span className="text-sm text-gray-400 line-through">
-                            {formatPrice(product.originalPrice)}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Add to Cart Button */}
-                      <Button className="w-full bg-coral-500 hover:bg-coral-600 text-white" disabled={!product.inStock}>
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        {product.inStock ? "เพิ่มใส่ตะกร้า" : "สินค้าหมด"}
-                      </Button>
                     </div>
                   </div>
                 ))}

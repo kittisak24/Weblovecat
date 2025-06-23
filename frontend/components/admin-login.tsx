@@ -48,7 +48,7 @@ export default function AdminLogin() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <Heart className="h-8 w-8 text-coral-500 mr-2" />
-            <span className="text-2xl font-bold text-gray-900">We Love Cat</span>
+            <span className="text-2xl font-bold text-gray-900">Web Love Cat</span>
           </div>
           <CardTitle className="text-xl">เข้าสู่ระบบจัดการ</CardTitle>
         </CardHeader>
@@ -92,16 +92,6 @@ export default function AdminLogin() {
               {isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
             </Button>
           </form>
-
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>สำหรับการทดสอบ:</p>
-            <p>
-              ชื่อผู้ใช้: <code className="bg-gray-100 px-1 rounded">admin</code>
-            </p>
-            <p>
-              รหัสผ่าน: <code className="bg-gray-100 px-1 rounded">admin123</code>
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

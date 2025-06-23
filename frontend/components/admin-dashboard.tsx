@@ -26,7 +26,12 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
+import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
+import AddProductDialog from "@/components/add-product-dialog"
+import EditProductDialog from "@/components/edit-product-dialog"
 
 // Mock data
 const dashboardStats = {
@@ -71,36 +76,6 @@ const recentBookings = [
   },
 ]
 
-const topProducts = [
-  {
-    id: 1,
-    name: "อาหารสุนัขพรีเมี่ยม Royal Canin",
-    category: "อาหารสุนัข",
-    sales: 156,
-    revenue: 202440,
-    stock: 45,
-    status: "in-stock",
-  },
-  {
-    id: 2,
-    name: "ของเล่นแมวอินเตอร์แอคทีฟ",
-    category: "ของเล่นแมว",
-    sales: 89,
-    revenue: 53311,
-    stock: 23,
-    status: "low-stock",
-  },
-  {
-    id: 3,
-    name: "บ้านสุนัขกันน้ำ Premium",
-    category: "บ้านสัตว์",
-    sales: 67,
-    revenue: 167333,
-    stock: 0,
-    status: "out-of-stock",
-  },
-]
-
 const customerFeedback = [
   {
     id: 1,
@@ -122,9 +97,59 @@ const customerFeedback = [
   },
 ]
 
+const productCategories = [
+  "อาหารสุนัข",
+  "อาหารแมว",
+  "ของเล่นแมว",
+  "อุปกรณ์สุนัข",
+  "อุปกรณ์แมว",
+  "บ้านสัตว์",
+  "เสื้อผ้าสัตว์",
+  "อุปกรณ์ให้อาหาร",
+  "ทรายแมว",
+  "ขนมสัตว์",
+  "กรงสัตว์",
+  "ผลิตภัณฑ์อาบน้ำ",
+]
+
 export default function AdminDashboard() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"
   const [activeTab, setActiveTab] = useState("overview")
   const [searchTerm, setSearchTerm] = useState("")
+  const [showAddProduct, setShowAddProduct] = useState(false)
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: 0,
+    rating: 0,
+    reviews: 0,
+    image: "",
+    badge: "",
+    inStock: 0, // จำนวนสินค้าในคลัง (จำนวนชิ้น)
+    isActive: true, // เปิด/ปิดการขาย (true=เปิด, false=ปิด)
+    category: productCategories[0],
+  })
+  const [products, setProducts] = useState<any[]>([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
+  const [errorProducts, setErrorProducts] = useState("")
+
+  const [showRegister, setShowRegister] = useState(false)
+  const [registerForm, setRegisterForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    name: "",
+  })
+  const [registerLoading, setRegisterLoading] = useState(false)
+  const [registerError, setRegisterError] = useState("")
+  const [registerSuccess, setRegisterSuccess] = useState("")
+
+  const [showEditProduct, setShowEditProduct] = useState(false)
+  const [editProduct, setEditProduct] = useState<any | null>(null)
+  const [editProductId, setEditProductId] = useState<string>("")
+
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState("");
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("th-TH", {
@@ -162,6 +187,160 @@ export default function AdminDashboard() {
     }
   }
 
+  // เพิ่มสินค้าใหม่ (เชื่อมต่อ API backend)
+  const [addProductError, setAddProductError] = useState("");
+const handleAddProduct = async () => {
+  try {
+    setAddProductError("");
+    const productToSave = { ...newProduct, inStock: Number(newProduct.inStock), isActive: Number(newProduct.isActive) };
+    console.log("Product to save:", productToSave);
+    // ยังไม่ต้องบันทึกลงฐานข้อมูล
+    setShowAddProduct(false);
+    setNewProduct({
+      name: "",
+      price: 0,
+      rating: 0,
+      reviews: 0,
+      image: "",
+      badge: "",
+      inStock: 0,
+      isActive: true,
+      category: productCategories[0],
+    });
+  } catch (err) {
+    setAddProductError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
+  }
+};
+
+  // toggle สถานะเปิด/ปิดสินค้า (เชื่อมต่อ API backend)
+  const handleToggleActive = async (id: string | undefined) => {
+    if (!id) return; // ป้องกัน undefined
+    const product = products.find(p => p._id === id)
+    if (!product) return
+    try {
+      // แปลงค่า isActive ให้เป็น boolean เสมอ
+      const newIsActive = !(product.isActive === true || product.isActive === 1 || product.isActive === "1");
+      const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: newIsActive }),
+      })
+      if (!res.ok) throw new Error("อัปเดตสถานะสินค้าไม่สำเร็จ")
+      const updated = await res.json()
+      // รองรับทั้ง 0/1, true/false จาก backend
+      setProducts(products.map(p =>
+        p._id === id ? { ...p, isActive: updated.isActive === true || updated.isActive === 1 || updated.isActive === "1" } : p
+      ))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "เกิดข้อผิดพลาด")
+    }
+  }
+
+  // ลบสินค้า (เชื่อมต่อ API backend)
+  const handleDeleteProduct = async (id: string) => {
+  if (!window.confirm("คุณต้องการลบสินค้านี้หรือไม่?")) return
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/products/${id}`, { method: "DELETE" })
+    const data = await res.json()
+    if (!res.ok) {
+      // แจ้งเตือน error ที่ backend ส่งกลับมา
+      alert(data.error || "ลบสินค้าไม่สำเร็จ")
+      return
+    }
+    // ลบสำเร็จ รีเฟรชข้อมูลสินค้าใหม่
+    setProducts(products.filter((p) => p._id !== id))
+    alert("ลบสินค้าสำเร็จแล้ว")
+  } catch (err) {
+    alert(err instanceof Error ? err.message : "เกิดข้อผิดพลาด")
+  }
+}
+
+  const handleRegister = async () => {
+    setRegisterLoading(true)
+    setRegisterError("")
+    setRegisterSuccess("")
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(registerForm),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "สมัครสมาชิกไม่สำเร็จ")
+      setRegisterSuccess("สมัครสมาชิกสำเร็จแล้ว!")
+      setTimeout(() => {
+        setShowRegister(false)
+        setRegisterForm({ username: "", email: "", password: "", name: "" })
+        setRegisterSuccess("")
+      }, 1200)
+    } catch (err: any) {
+      setRegisterError(err.message || "เกิดข้อผิดพลาด")
+    } finally {
+      setRegisterLoading(false)
+    }
+  }
+
+  const handleEditProduct = (id: string) => {
+    const product = products.find((p) => p._id === id)
+    if (!product) return
+    setEditProductId(id)
+    setEditProduct({ ...product, inStock: Number(product.inStock), isActive: Number(product.isActive) })
+    setShowEditProduct(true)
+  }
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoadingProducts(true)
+        setErrorProducts("")
+        const res = await fetch(`${API_BASE_URL}/api/products`)
+        if (!res.ok) throw new Error("โหลดสินค้าจากฐานข้อมูลไม่สำเร็จ")
+        const data = await res.json()
+        // Mapping เพื่อรองรับ key ที่อาจไม่ตรงจาก backend
+        setProducts(data.map((item: any) => ({
+          ...item,
+          inStock: item.inStock ?? item.stock ?? 0,
+          status: item.status ?? (item.inStock > 0 || item.stock > 0 ? "in-stock" : "out-of-stock"),
+        })))
+      } catch (err) {
+        setErrorProducts(err instanceof Error ? err.message : "เกิดข้อผิดพลาด")
+      } finally {
+        setLoadingProducts(false)
+      }
+    }
+    fetchProducts()
+  }, [])
+
+  // โหลด user info จาก backend
+useEffect(() => {
+  const fetchUser = async () => {
+    setUserLoading(true);
+    setUserError("");
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+      if (!token) throw new Error("ไม่พบ token กรุณาเข้าสู่ระบบใหม่");
+      const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "โหลดข้อมูลผู้ใช้ไม่สำเร็จ");
+      }
+      const data = await res.json();
+      // อ่านข้อมูลจาก data.user
+      const name = data.user?.name || data.user?.username || "-";
+      const role = data.user?.role || "admin";
+      setUser({ name, role });
+    } catch (err) {
+      setUserError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
+      setUser(null);
+    } finally {
+      setUserLoading(false);
+    }
+  };
+  fetchUser();
+}, [API_BASE_URL]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -172,8 +351,31 @@ export default function AdminDashboard() {
               <Heart className="h-8 w-8 text-coral-500 mr-2" />
               <span className="text-xl font-bold text-gray-900">We Love cat Admin</span>
             </div>
+
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm">
+               {/* User Info */}
+              <div className="flex items-center gap-3">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-coral-100 text-coral-700 rounded-full w-8 h-8 flex items-center justify-center">
+                    {user?.name?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden md:block">
+                  {userLoading ? (
+                    <p className="text-sm text-gray-400">กำลังโหลด...</p>
+                  ) : userError ? (
+                    <p className="text-sm text-red-500">{userError}</p>
+                  ) : user ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                      <p className="text-xs text-gray-500">{user.role}</p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-400">ไม่พบข้อมูลผู้ใช้</p>
+                  )}
+                </div>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setShowRegister(true)}>
                 <Settings className="h-4 w-4 mr-2" />
                 ตั้งค่า
               </Button>
@@ -295,12 +497,14 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {topProducts.slice(0, 3).map((product) => (
-                      <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    {recentBookings.slice(0, 3).map((product, idx) => (
+                      <div key={product.id || idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
-                          <p className="font-medium line-clamp-1">{product.name}</p>
-                          <p className="text-sm text-gray-600">{product.category}</p>
-                          <p className="text-xs text-gray-500">ขาย {product.sales} ชิ้น</p>
+                          <p className="font-medium line-clamp-1">{product.customerName}</p>
+                          <p className="text-sm text-gray-600">{product.service}</p>
+                          <p className="text-xs text-gray-500">
+                            {product.date} {product.time}
+                          </p>
                         </div>
                         <div className="text-right">
                           <Badge className={getStatusColor(product.status)}>
@@ -310,7 +514,7 @@ export default function AdminDashboard() {
                                 ? "สินค้าน้อย"
                                 : "หมด"}
                           </Badge>
-                          <p className="text-sm font-medium mt-1">{formatCurrency(product.revenue)}</p>
+                          <p className="text-sm font-medium mt-1">{formatCurrency(product.amount)}</p>
                         </div>
                       </div>
                     ))}
@@ -405,9 +609,6 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex gap-2">
                               <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline" size="sm">
                                 <Edit className="h-4 w-4" />
                               </Button>
                               <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
@@ -428,114 +629,101 @@ export default function AdminDashboard() {
           <TabsContent value="products" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">จัดการสินค้า</h2>
-              <Button className="bg-coral-500 hover:bg-coral-600">
+              <Button className="bg-coral-500 hover:bg-coral-600" onClick={() => setShowAddProduct(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 เพิ่มสินค้าใหม่
               </Button>
             </div>
 
-            {/* Product Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">สินค้าทั้งหมด</p>
-                      <p className="text-2xl font-bold">{dashboardStats.totalProducts}</p>
-                    </div>
-                    <Package className="h-8 w-8 text-coral-500" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">สินค้าหมด</p>
-                      <p className="text-2xl font-bold text-red-600">12</p>
-                    </div>
-                    <TrendingUp className="h-8 w-8 text-red-500" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">สินค้าใกล้หมด</p>
-                      <p className="text-2xl font-bold text-yellow-600">23</p>
-                    </div>
-                    <TrendingUp className="h-8 w-8 text-yellow-500" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">ยอดขายเดือนนี้</p>
-                      <p className="text-2xl font-bold text-green-600">1,234</p>
-                    </div>
-                    <BarChart3 className="h-8 w-8 text-green-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Modal เพิ่มสินค้าใหม่ */}
+            <AddProductDialog
+              open={showAddProduct}
+              onOpenChange={setShowAddProduct}
+              newProduct={newProduct}
+              setNewProduct={setNewProduct}
+              handleAddProduct={handleAddProduct}
+              addProductError={addProductError}
+              productCategories={productCategories}
+            />
+
+            {/* Modal แก้ไขสินค้า */}
+            <EditProductDialog
+              open={showEditProduct}
+              onOpenChange={setShowEditProduct}
+              editProduct={editProduct}
+              setEditProduct={setEditProduct}
+              productCategories={productCategories}
+            />
 
             {/* Products Table */}
             <Card>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สินค้า</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">หมวดหมู่</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ยอดขาย</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">คงเหลือ</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">รายได้</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">การจัดการ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {topProducts.map((product) => (
-                        <tr key={product.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900 line-clamp-2">{product.name}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.category}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.sales} ชิ้น</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.stock} ชิ้น</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge className={getStatusColor(product.status)}>
-                              {product.status === "in-stock"
-                                ? "มีสินค้า"
-                                : product.status === "low-stock"
-                                  ? "สินค้าน้อย"
-                                  : "หมด"}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {formatCurrency(product.revenue)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline" size="sm">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
+                  {loadingProducts ? (
+                    <div className="text-center text-gray-400 py-8">กำลังโหลดสินค้า...</div>
+                  ) : errorProducts ? (
+                    <div className="text-center text-red-500 py-8">{errorProducts}</div>
+                  ) : (
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สินค้า</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">หมวดหมู่</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">จำนวน</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">เปิด/ปิด</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">การจัดการ</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {products.map((product, idx) => {
+                          const isActive = product.isActive === true;
+                          if (!product._id) return null; // ข้ามถ้าไม่มี _id
+                          return (
+                            <tr key={product._id || idx} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm font-medium text-gray-900 line-clamp-2">{product.name}</div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.category}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.inStock} ชิ้น</td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <Badge className={getStatusColor(product.inStock === 0 ? "out-of-stock" : product.inStock < 10 ? "low-stock" : "in-stock")}>
+                                  {product.inStock === 0
+                                    ? "หมด"
+                                    : product.inStock < 10
+                                      ? "สินค้าน้อย"
+                                      : "มีสินค้า"}
+                                </Badge>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <Switch checked={isActive} onCheckedChange={() => handleToggleActive(product._id)} />
+                                <span className="ml-2 text-xs">{isActive ? "เปิด" : "ปิด"}</span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div className="flex gap-2">
+                                  <Button 
+                                    variant="outline"  
+                                    size="sm"
+                                    onClick={() => handleEditProduct(product._id)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-600 hover:text-red-700"
+                                    onClick={() => handleDeleteProduct(product._id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -562,8 +750,8 @@ export default function AdminDashboard() {
 
             {/* Reviews List */}
             <div className="space-y-4">
-              {customerFeedback.map((review) => (
-                <Card key={review.id}>
+              {customerFeedback.map((review, idx) => (
+                <Card key={review.id || idx}>
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
@@ -713,6 +901,31 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Register Dialog */}
+      <Dialog open={showRegister} onOpenChange={setShowRegister}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>สมัครสมาชิกใหม่ (Register)</DialogTitle>
+            <DialogDescription>
+              กรอกข้อมูลเพื่อสมัครสมาชิกใหม่สำหรับระบบแอดมิน
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input placeholder="Username" value={registerForm.username} onChange={e => setRegisterForm(f => ({ ...f, username: e.target.value }))} />
+            <Input placeholder="Email" type="email" value={registerForm.email} onChange={e => setRegisterForm(f => ({ ...f, email: e.target.value }))} />
+            <Input placeholder="ชื่อ-นามสกุล" value={registerForm.name} onChange={e => setRegisterForm(f => ({ ...f, name: e.target.value }))} />
+            <Input placeholder="Password" type="password" value={registerForm.password} onChange={e => setRegisterForm(f => ({ ...f, password: e.target.value }))} />
+            {registerError && <div className="text-red-500 text-sm">{registerError}</div>}
+            {registerSuccess && <div className="text-green-600 text-sm">{registerSuccess}</div>}
+          </div>
+          <DialogFooter>
+            <Button onClick={handleRegister} className="bg-coral-500 hover:bg-coral-600 text-white" disabled={registerLoading}>
+              {registerLoading ? "กำลังสมัคร..." : "สมัครสมาชิก"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

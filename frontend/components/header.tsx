@@ -25,7 +25,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Heart className="h-8 w-8 text-coral-500 mr-2" />
-            <span className="text-xl font-bold text-gray-900">We Love Pet</span>
+            <span className="text-xl font-bold text-gray-900">Web Love Cat</span>
           </div>
 
           {/* Desktop Navigation */}
