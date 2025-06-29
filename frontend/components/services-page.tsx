@@ -188,7 +188,7 @@ export default function ServicesPage() {
 									)}
 									{service.new && <Badge className="bg-green-500">ใหม่</Badge>}
 									{service.emergency && (
-										<Badge className="bg-red-500">24/7</Badge>
+										<Badge className="bg-red-500">95%</Badge>
 									)}
 								</div>
 							</div>

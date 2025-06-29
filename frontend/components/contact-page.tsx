@@ -39,9 +39,9 @@ const contactInfo = [
 ]
 
 const socialMedia = [
-  { icon: Facebook, name: "Facebook", url: "https://facebook.com/welovepet", color: "bg-blue-600" },
-  { icon: Instagram, name: "Instagram", url: "https://instagram.com/welovepet", color: "bg-pink-600" },
-  { icon: Twitter, name: "Twitter", url: "https://twitter.com/welovepet", color: "bg-blue-400" },
+  { icon: Facebook, name: "Facebook", url: "https://facebook.com/weblovecat", color: "bg-blue-600" },
+  { icon: Instagram, name: "Instagram", url: "https://instagram.com/weblovecat", color: "bg-pink-600" },
+  { icon: Twitter, name: "Twitter", url: "https://twitter.com/weblovecat", color: "bg-blue-400" },
 ]
 
 const inquiryTypes = [
