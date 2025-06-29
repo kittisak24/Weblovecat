@@ -24,20 +24,34 @@ export default function AdminLogin() {
     setError("")
 
     try {
-      const res = await fetch("http://localhost:8000/api/auth/login", {
+      const res = await fetch("http://localhost:8000/api/auth/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       })
       const data = await res.json()
       if (res.ok && data.success) {
-        localStorage.setItem("admin_token", data.token)
+        localStorage.setItem("admin_token", data.data.accessToken)
+        // เก็บ username และ role ลง localStorage
+        localStorage.setItem("admin_username", credentials.username)
+        localStorage.setItem("admin_role", data.data.role || "admin")
+        // ถ้าต้องการเก็บ refreshToken ด้วย
         router.push("/admin")
       } else {
-        setError(data.error || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+        let errorMsg = data.error || data.message || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"
+        if (typeof errorMsg === "object") {
+          errorMsg = errorMsg.message || JSON.stringify(errorMsg)
+        }
+        setError(errorMsg)
       }
     } catch (err) {
-      setError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์")
+      if (typeof err === "string") {
+        setError(err)
+      } else if (err && typeof err === "object" && "message" in err) {
+        setError((err as any).message || "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์")
+      } else {
+        setError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์")
+      }
     }
     setIsLoading(false)
   }
