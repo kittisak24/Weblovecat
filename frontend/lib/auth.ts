@@ -18,14 +18,14 @@ const users: User[] = [
   {
     id: "1",
     username: "admin",
-    email: "admin@welovepet.com",
+    email: "admin@weblovecat.com",
     role: "admin",
     name: "ผู้ดูแลระบบ",
   },
   {
     id: "2",
     username: "manager",
-    email: "manager@welovepet.com",
+    email: "manager@weblovecat.com",
     role: "admin",
     name: "ผู้จัดการ",
   },
