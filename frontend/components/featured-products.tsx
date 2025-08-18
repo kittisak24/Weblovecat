@@ -16,25 +16,43 @@ interface Product {
   reviews: number
   image?: string
   badge?: string
-  isActive?: boolean
+  inStock?: boolean
 }
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000"
 
+  // โหลดสินค้าจาก backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true)
         setError("")
-        const res = await fetch("/api/products")
-        if (!res.ok) throw new Error("ไม่สามารถโหลดสินค้าได้")
+        const res = await fetch(`${API_BASE_URL}/api/products`)
+
+        if (!res.ok) {
+          throw new Error(`โหลดสินค้าจากฐานข้อมูลไม่สำเร็จ: ${res.statusText}`)
+        }
         const data = await res.json()
-        setProducts(data)
-      } catch (err: any) {
-        setError(err?.message || "เกิดข้อผิดพลาด")
+
+        if (!data.success || !Array.isArray(data.data.products)) {
+          throw new Error("โครงสร้างข้อมูลจาก backend ไม่ถูกต้อง")
+        }
+
+        // กรองเฉพาะสินค้าที่มี badge
+        const filteredProducts = data.data.products
+          .filter((item: any) => item.badge && item.badge !== "") // กรองสินค้าที่มี badge และไม่ใช่สตริงว่าง
+          .map((item: any) => ({
+            ...item,
+            inStock: item.inStock ?? true,
+          }))
+
+        setProducts(filteredProducts)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด")
       } finally {
         setLoading(false)
       }
@@ -56,6 +74,8 @@ export default function FeaturedProducts() {
           <div className="text-center text-gray-400 py-12">กำลังโหลดสินค้า...</div>
         ) : error ? (
           <div className="text-center text-red-500 py-12">{error}</div>
+        ) : products.length === 0 ? (
+          <div className="text-center text-gray-400 py-12">ไม่มีสินค้าที่จะแสดง</div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             {products.map((product) => (
@@ -80,7 +100,9 @@ export default function FeaturedProducts() {
                             ? "bg-coral-500 text-white"
                             : product.badge === "ใหม่"
                               ? "bg-green-500 text-white"
-                              : "bg-orange-500 text-white"
+                              : product.badge === "ลดราคา"
+                                ? "bg-orange-500 text-white"
+                                : "bg-blue-500 text-white" // สำหรับ badge อื่น เช่น "แนะนำ"
                         }`}
                       >
                         {product.badge}
@@ -91,7 +113,7 @@ export default function FeaturedProducts() {
 
                 {/* Product Info */}
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-coral-500 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-900 mb the-2 group-hover:text-coral-500 transition-colors">
                     {product.name}
                   </h3>
 
@@ -101,7 +123,9 @@ export default function FeaturedProducts() {
                       <Star className="h-4 w-4 text-yellow-400 fill-current" />
                       <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
                     </div>
-                    <span className="text-sm text-gray-400">({product.reviews})</span>
+                    <span className="text-sm text-gray ..
+
+-400">({product.reviews})</span>
                   </div>
 
                   {/* Price */}
@@ -117,9 +141,9 @@ export default function FeaturedProducts() {
                   </div>
 
                   {/* Add to Cart Button */}
-                  <Button className="w-full bg-coral-500 hover:bg-coral-600 text-white" disabled={product.isActive === false}>
+                  <Button className="w-full bg-coral-500 hover:bg-coral-600 text-white" disabled={!product.inStock}>
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    {product.isActive === false ? "ปิดการขาย" : "เพิ่มใส่ตะกร้า"}
+                    {product.inStock ? "เพิ่มใส่ตะกร้า" : "สินค้าหมด"}
                   </Button>
                 </div>
               </div>

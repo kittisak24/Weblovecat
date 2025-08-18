@@ -330,7 +330,7 @@ export default function BookingModal({ isOpen, onClose, service }: BookingModalP
               <ul className="text-sm text-gray-600 space-y-1">
                 <li>• ทีมงานจะติดต่อกลับเพื่อยืนยันการจองภายใน 24 ชั่วโมง</li>
                 <li>• สามารถยกเลิกหรือเปลี่ยนแปลงการจองได้ล่วงหน้า 24 ชั่วโมง</li>
-                <li>• กรุณามาถึงก่อนเวลานัดหมาย 15 นาที</li>
+                <li>• กรุณามาถึงก่อนเวลานัดหมาย 30 นาที</li>
                 <li>• หากมีคำถามติดต่อ 02-123-4567</li>
               </ul>
             </div>
